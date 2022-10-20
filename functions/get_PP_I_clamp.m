@@ -1,4 +1,4 @@
-function [Rin, Cm, fit_vals, trace_time, exp_fit] = get_PP_I_clamp(data, step_start, pulse, I_step, samprate, figure_on)
+function [Rin, Cm, mTau, fit_vals, trace_time, exp_fit] = get_PP_I_clamp(data, step_start, pulse, I_step, samprate, figure_on)
 
 %Calculates input resistance (Rin) and membrane capacitance (Cm) for traces
 %obtained under current clamp
@@ -10,6 +10,15 @@ function [Rin, Cm, fit_vals, trace_time, exp_fit] = get_PP_I_clamp(data, step_st
 %   I_step- test pulse amplitude (in A) 
 %   samprate- sampling rate, in Hz
 %   figures_on = 1 for plotting
+
+%Outputs:
+%   Rin- Input resistance (in MOhm)
+%   Cm- Membrane capacitance (in pF)
+%   mTau- Membrane time constant (in ms)
+%   fit_vals- regions for 1st-exp fitting
+%   trace_time- time points for 1st-exp fitting
+%   exp_fit- fitting results
+
 
 data_V = data * 10^-3; % mV to V
 dV_sec = diff(data_V).*(samprate/1000); %mv/sec
@@ -63,7 +72,7 @@ else
     fit_st = find(trace_vals(1 : 800) >= median(bl_vals, 'omitnan')+0.1*delta_V, 1, 'last'); % 10% drop as the stating point
 end
 
-fit_end = numel(trace_vals);
+[~,fit_end] = min(trace_vals);
 trace_vals_adj = trace_vals(fit_st:fit_end);
 
 % trace_vals_abs = abs(trace_vals);
@@ -73,16 +82,11 @@ trace_vals_adj = trace_vals(fit_st:fit_end);
 trace_vals_norm = abs(trace_vals_adj - V_bl);
 fit_st_norm = find(trace_vals_norm > trace_vals_norm(end)*0.05, 1, 'first');
 
-if find(trace_vals_norm > trace_vals_norm(end)*0.95, 1, 'first') < 3000
-    
-    if find(trace_vals_norm > trace_vals_norm(end)*0.95, 1, 'first')+2000 > numel(trace_vals_norm)
-        fit_end_norm = numel(trace_vals_norm);
-    else
-        fit_end_norm = find(trace_vals_norm > trace_vals_norm(end)*0.95, 1, 'first')+2000;
-    end
-else
-    fit_end_norm = find(trace_vals_norm > trace_vals_norm(end)*0.95, 1, 'first');
-end
+% if find(trace_vals_norm > trace_vals_norm(end)*0.95, 1, 'first') < 150
+%     fit_end_norm = find(trace_vals_norm > trace_vals_norm(end)*0.95, 1, 'last')+100;
+% else
+    fit_end_norm = find(trace_vals_norm > trace_vals_norm(end)*0.95, 1, 'last');
+%end
 
 fit_vals = trace_vals_norm(fit_st_norm:fit_end_norm);
 %fit_vals_test = fit_vals - 10*10^-4;
@@ -103,9 +107,10 @@ f = fittype('a*(1-exp(-x/b))','options',s);
 %      'Upper', [fit_vals(end)*1.2, tau_est*5, fit_vals(end)*1.25, tau_est*15]);
 % f2 = fittype('a*(1-exp(-x/b))+c*(1-exp(-x/d))','options',s2);
 
-[exp_fit,~] = fit(trace_time',fit_vals,f);
+[exp_fit,gof] = fit(trace_time',fit_vals,f);
 %[exp_fit_2,gof_2] = fit(trace_time',fit_vals,f2);
 
+mTau = exp_fit.b; %in s
 Cm = exp_fit.b/Rin*10^6; %in pF
 % Cm_2 = exp_fit_2.d/Rin*10^6; %in pF
 % Cp = exp_fit_2.b/500*10^6; %in pF (hypothetically pipette capacitance)
@@ -145,9 +150,4 @@ if figure_on
 %     hold off
 %     
 end
-
-
-
-
-
-   
+       
