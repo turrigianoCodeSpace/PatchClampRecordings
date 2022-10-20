@@ -8,16 +8,16 @@
 %% Initialization
 
 %location where the mat file will be saved
-fp_analyzed_data = 'C:\Users\schum\Google_Drive\Lab\Data_analysis\culture_experiments\fI_data_by_groups';
+fp_analyzed_data = '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/fI_data_by_groups';
 
 %name of the mat file
-filename = {'ttx_16h_apv_24h_fI_threshold_stats.mat'};
+filename = {'ttx_apv_co_16h_stats.mat'};
 
 %experimental conditions (stats in each column follow this order)
 cond = {'Ctrl','APV','TTX'};
 
 %functions for calculating stats
-func = {@nanmean, @nanstd, @nansem};
+func = {@mean, @std, @nansem};
 
 %field names (corresponding to properties)
 fields = {'MFR','IFR','mean_IFR'};
@@ -28,7 +28,7 @@ fields = {'MFR','IFR','mean_IFR'};
 plot_on = 1;
 
 %save results
-save_results = 1;
+save_results = 0;
 
 %% calculate stats 
 
@@ -73,7 +73,7 @@ for cdii = 1:numel(cond) % per experimental condition
                 continue
             else
                 for cuii = 1:size(curr_c.(fields{fii}),2) % per cell
-                    med.(fields{fii})(cuii,cdii) = nanmedian(curr_c.(fields{fii})(:,cuii));
+                    med.(fields{fii})(cuii,cdii) = median(curr_c.(fields{fii})(:,cuii),'omitnan');
                 end
                 
 %                 vals = get_step_values(curr_c.(fields{fii}), 2, 0);
@@ -93,10 +93,10 @@ end
 
 % data range for plotting
 plot_range = 1:10;
-plot_variable = 'MFR';
+plot_variable = 'IFR';
 plot_stat = 'ave';
 err = 'sem';
-y_label = 'MFR (Hz)';
+y_label = 'IFR (Hz)';
 mksz = 12; %marker size
 
 %tint factors
@@ -168,17 +168,17 @@ if plot_on == 1
 %             'Color','k')
 
     ax = gca;
-    ax.FontSize = 12;
+    ax.FontSize = 14;
     ax.LineWidth = 2;
     ax.YLabel.String = y_label;
     ax.YLabel.FontSize = 14;
     ax.XLabel.String = 'Injected Current (pA)';
     ax.YLabel.FontSize = 14;
     ax.YLabel.Interpreter = 'none';
-    ax.XLim = [0 60];
-    ax.YLim = [0 3];
+    ax.XLim = [0 260];
+    ax.YLim = [0 Inf];
 
-    legend('Ctrl','APV','TTX','FontSize',12,'Location','northwest','Interpreter','none','Box','off')
+    legend('Ctrl','APV','TTX','FontSize',14,'Location','northwest','Interpreter','none','Box','off')
     %title('Bursting')
 
 end
