@@ -34,7 +34,7 @@ fp_pp_analyzed_data = ...,
     '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/analyzed_seal_test';
 
 %experiment(s) (defined as the 6-digit format of the recording date)
-experiment = {'220805'};
+experiment = {'220719'};
 
 %subfolders under a certain experiment if any (e.g. before/after)
 sub = '';
@@ -64,7 +64,7 @@ figure_pp_on = 0;
 %latency of pulse onset (in s)
 step_start_fI = 1;
 
-%duration of the current injection pulse (in seconds)
+%duration of the current injection pulse (in s)
 pulse_fI = 0.5;
 
 %current injection step amplitude (in pA)
@@ -218,7 +218,7 @@ for jj = 1:1%numel(experiment)
     end
         
     %Rheobase data readout (if any)
-    current_rheo_folder = strcat(fp_rheo_data, current_experiment, '\', sub);  
+    current_rheo_folder = strcat(fp_rheo_data, current_experiment, '/', sub);  
     
     if ~isfolder(current_rheo_folder)
         aDAT_rheo = NaN;
@@ -273,7 +273,7 @@ for jj = 1:1%numel(experiment)
     AP_peak = cell(1,max(cell_num)); %peak amplitde of each AP
     AP_peak_ave = cell(1,max(cell_num)); %average AP peak amp
     AP_peak_1st = cell(1,max(cell_num)); %first AP amp
-    Vrm = cell(1,max(cell_num)); %resting membrane potential
+    Vrm = cell(1,max(cell_num)); %holding membrane potential
     Vrm_stat = NaN(max(cell_num),cell_stats_par_num); %stats of Vrm during current injection
     spike_count = cell(1,max(cell_num)); %number of spikes evoked
     curr_inj = cell(1,max(cell_num)); %current injected
@@ -346,7 +346,7 @@ for jj = 1:1%numel(experiment)
                     
                     fI_data = aDAT_fI{1,ci}(:,ti);
                     
-                    %Resting membrane potential (in mV)
+                    %holding membrane potential (in mV)
                     Vrm{1,ci}(ti,1) = mean(fI_data(1000:2000),'omitnan');
 
                     %current injected (in pA)
