@@ -10,10 +10,10 @@ fp_analyzed_mini = ...,
     '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/analyzed_mini_results/';
 
 %subfolders (if any)
-sub = 'rise_1';
+sub = 'rise';
 
 %experiment
-exp = '220903';
+exp = '230331minus40_ctrl';
 
 %location to save the ALL_EVENTS file
 fp_all_events = ...,

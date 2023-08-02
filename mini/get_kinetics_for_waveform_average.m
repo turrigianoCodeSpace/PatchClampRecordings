@@ -9,7 +9,7 @@ expt_type = 1;
 
 %location of MINIANALYSIS mat files
 fp_mini_analysis = ...,
-    'C:\Users\schum\Google_Drive\Lab\Data_analysis\culture_experiments\analyzed_mini_results\';
+    '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/analyzed_mini_results/';
 
 %rise time cutoff
 if expt_type == 1
@@ -19,14 +19,14 @@ elseif expt_type == 2
 end
     
 %Name of experiment(s) to be run
-experiment = '220903';
+experiment = '230729';
 
 %location where kinetic results are saved
 fp_kinetics = ...,
-    'C:\Users\schum\Google_Drive\Lab\Data_analysis\culture_experiments\waveform_average_kinetics\';
+    '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/waveform_average_kinetics/';
 
 %%%%%plotting settings
-figure_on = 0;
+figure_on = 1;
 
 %%%%save results
 save_results = 1;
@@ -66,7 +66,7 @@ decay_start_pc = 0.9;
 num_pts_BL = 30;
 
 if expt_type == 1
-    num_pts_for_decayfit = 50;
+    num_pts_for_decayfit = 100;
 elseif expt_type == 2
     num_pts_for_decayfit = 150;
 end

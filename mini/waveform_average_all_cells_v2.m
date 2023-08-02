@@ -23,10 +23,10 @@ figure_on_scaled = 1;
 
 %experiment name (correpsonding to the sheet name in the cell_id_index
 % excel file)
-exp_name = 'APV_24h';
+exp_name = 'minus40_APVWashin';
 
 %subfolder
-sub = 'rise_1';
+sub = 'rise';
 
 %where to save grouped files
 fp_wa_group = ...,

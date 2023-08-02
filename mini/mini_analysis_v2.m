@@ -30,21 +30,24 @@
 %% Experiment names and folder pathes
 
 %Name of the data folder
-experiment = {'test'};
+experiment = {'230729'};
+
+%Name of the subfolder (if applicable)
+sub = '';
 
 %location of the excised file
-excised_data_fp = 'C:\Users\schum\Google_Drive\Lab\Data\culture_experiments\excised_data\';
+excised_data_fp = '/Users/wwneuro/My_Drive/Lab/Data/culture_experiments/excised_data/';
 
 %Filepath where you keep data folders
-fp_data = 'C:\Users\schum\Google_Drive\Lab\Data\culture_experiments\mini\';
+fp_data = '/Users/wwneuro/My_Drive/Lab/Data/culture_experiments/mini/';
 
 %location to save the analyzed mini data
 fp_analyzed_data = ...,
-    'C:\Users\schum\Google_Drive\Lab\Data_analysis\culture_experiments\analyzed_mini_results\';
+    '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/analyzed_mini_results/';
 
 %location to save the analyzed passive property data
 fp_pp = ...,
-    'C:\Users\schum\Google_Drive\Lab\Data_analysis\culture_experiments\analyzed_seal_test\';
+    '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/analyzed_seal_test/';
 
 %% save and plotting settings
 
@@ -56,13 +59,13 @@ cur_type = 1;
 save_results = 1;
 
 %whether to show figures for each mini trace; 0 = no, 1 = yes.
-figures_on_mini = 1;
+figures_on_mini = 0;
 
 %whether to show figures for passive property analysis; 0 = no, 1 = yes.
 figures_on_pp = 0;
 
 %whether to display frequency for each trace;  0 = no, 1 = yes.
-display_frq = 0;
+display_frq = 1;
 
 troubleshoot_events_detect = 0;
 %%%%%% opens a figure window that shows individual events that have been
@@ -112,14 +115,14 @@ detect_crit_thresh = 0.10;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%% EXCLUSION CRITERIA %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-amp_cutoff_low = 5;
-amp_cutoff_high = 120;
+amp_cutoff_low = 10;
+amp_cutoff_high = 250;
 %%%%%% (pA) Value range of acceptable events amplitudes
 
 refractory_per = 15;%15;
 %%%%%% minumum number of points between events (REFRACTORY PERIOD)
 
-numptsBL = 10;
+numptsBL = 15;
 %%%%%% number of points before event start to use for determining whether
 %%%%%% event has a stable baseline
 
@@ -155,9 +158,9 @@ max_decay_rmse = 3;%2.5;
 %%%%%% decay (exclude if higher)
 
 if cur_type == 1
-    risetime_cutoff = 1.5;
-    BLBAD_thresh = 3.0;
-    S_E_L = 150;
+    risetime_cutoff = 2;
+    BLBAD_thresh = 5.0;
+    S_E_L = 180;
 elseif cur_type == 2
     risetime_cutoff = 5;
     BLBAD_thresh = 5.0;
@@ -249,13 +252,13 @@ cell_stats = cell(1,numexp);
 
 for jj = 1:1%numel(experiment)
     %Name of the analyzed mini results
-    save_mini_file_name = strcat('MINIANALYSIS_',experiment{jj},'.mat');
+    save_mini_file_name = strcat('MINIANALYSIS_',experiment{jj},sub,'.mat');
 
     %Name of the analyzed passive property results
-    save_pp_file_name = strcat('pp_',experiment{jj},'.mat');
+    save_pp_file_name = strcat('pp_',experiment{jj},sub,'.mat');
 
     %this needs to be copied from excise_x_points
-    excised_filename = strcat('excised_',experiment{jj},'.mat');
+    excised_filename = strcat('excised_',experiment{jj},sub,'.mat');
     
     %import excised coordinates
     cd(excised_data_fp)
@@ -263,7 +266,7 @@ for jj = 1:1%numel(experiment)
     excised_points = excised_data.excised_points;
     
     current_experiment = experiment{jj};
-    current_folder = strcat(fp_data,current_experiment);
+    current_folder = strcat(fp_data,current_experiment,'/',sub);
     
     
     [raw_h5_files,data,cell_id,cell_num,filename] = h5_file_readout(current_folder);
@@ -513,7 +516,12 @@ for jj = 1:1%numel(experiment)
                                     f = fittype('a*exp(b*x)','options',s);
 
                         for i = 1:numel(timeindx)
-                            event(:,i) = aDAT(timeindx(i):timeindx(i)+S_E_L);
+                            if timeindx(i)+S_E_L > numel(aDAT)
+                                event(:,i) = aDAT((numel(aDAT)-size(event,1)+1):numel(aDAT));
+                            else
+                                event(:,i) = aDAT(timeindx(i):timeindx(i)+S_E_L);
+                            end
+
                             for k = 4:((S_E_L/3)+1)
                                 pt3_avg(k-2,i) = (event(k-2,i)+event(k-3,i)+event(k-1,i))/3;
                                 %average amplitudes of every 3 points
@@ -737,14 +745,18 @@ for jj = 1:1%numel(experiment)
                                 decay_i_wBL = sm_pk_ind(i)-event_start_ind{i}+numptsBL+2+decay_i;
 
                                 % if decay fitting region cannot be found
-                                if isempty(decay_i) ==1
-                                    decay_i = NaN;
-                                    DECAY_TIME(i) = NaN;
-                                    sm_pk_val(i) = NaN;
-                                    sm_pk_ind(i) = NaN;
-                                    timeindx_no_decay(i) = timeindx(i);
+                                if i+1 > numel(timeindx)
+                                    continue
                                 else
-                                    DECAY_TIME(i) = (decay_i+2)/samplert;
+                                    if isempty(decay_i) ==1 || (decay_i+timeindx(i)+sm_pk_ind(i))>timeindx(i+1)
+                                        decay_i = NaN;
+                                        DECAY_TIME(i) = NaN;
+                                        sm_pk_val(i) = NaN;
+                                        sm_pk_ind(i) = NaN;
+                                        timeindx_no_decay(i) = timeindx(i);
+                                    else
+                                        DECAY_TIME(i) = (decay_i+2)/samplert;
+                                    end
                                 end
 
                                 %rise time must be shorter than decay,
@@ -823,16 +835,22 @@ for jj = 1:1%numel(experiment)
                            % refractory period between events should be within
                            % bounds
                            if ~isnan(sm_pk_ind(i))  
-                               if i>1
-                                   events_before_i = sm_pk_ind(1:i-1);
-                                   i_notnan = find(~isnan(events_before_i),1,'last');
-                                    if (timeindx(i)+event_start_ind{i})...,
-                                        - (timeindx(i_notnan)+sm_pk_ind(i_notnan)+decay_ind(i_notnan)) <= refractory_per
-                                    sm_pk_val(i) = NaN;
-                                    sm_pk_ind(i) = NaN;
+                               if i<numel(timeindx)
+                                   %events_before_i = sm_pk_ind(1:i-1);
+%                                    %i_notnan = find(~isnan(events_before_i),1,'last');
+%                                     i_notnan = sm_pk_ind(i-1);
+%                                     if (timeindx(i)+event_start_ind{i})...,
+%                                         - (timeindx(i_notnan)+sm_pk_ind(i_notnan)+decay_ind(i_notnan)) <= refractory_per
+
+                                   if timeindx(i+1)-timeindx(i) <= refractory_per 
+                                    sm_pk_val(i:i+1) = NaN;
+                                    sm_pk_ind(i:i+1) = NaN;
                                     timeindx_refractory_per(i) = timeindx(i);
+                                    timeindx_refractory_per(i+1) = timeindx(i+1);
+
                                     continue
-                                    end              
+
+                                   end              
                                end
                            end
 
@@ -1177,10 +1195,10 @@ cd(fp_pp)
 save(save_pp_file_name,'Cm','Cm_est','Rin','Rs','Rs_est','Vm','cell_stats')
 
 if save_results == 1
-    if risetime_cutoff < 2.01 %(used 1.5 as acutal cutoff because too many excellent events would be excluded if set at 1)
-        cd(strcat(fp_analyzed_data,'\rise_',num2str(1)))
+    if risetime_cutoff < 2.01 %10-90, 2ms (regular setting for mEPSC)
+        cd(strcat(fp_analyzed_data,'/rise_',num2str(1)))
     else
-        cd(strcat(fp_analyzed_data,'\rise_',num2str(4)))
+        cd(strcat(fp_analyzed_data,'/rise'))
     end
     
     save(save_mini_file_name,'aDAT_all','AMP_ALL','cell_stats','cell_id','Cm','DECAY','DECAY_INDICES',...

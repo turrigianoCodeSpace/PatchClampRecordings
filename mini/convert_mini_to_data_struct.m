@@ -19,34 +19,43 @@ rise_cutoff = 'rise_1';
 
 %experiment name (correpsonding to the sheet name in the cell_id_index
 % excel file)
-exp_name = strcat('APV_24h','_',rise_cutoff);
+exp_name = strcat('TTX_GLYX13_24h_',rise_cutoff);
 
 %file name
-saved_file_name = 'apv_24h.mat';
+saved_file_name = 'TTX_GLYX13_24h.mat';
 
 %where to save grouped files
 fp_grouped_data = ...,
-    'C:\Users\schum\Google_Drive\Lab\Data_analysis\culture_experiments\mini_data_by_groups';
+    '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/mini_data_by_groups/';
 
 %experimental conditions
-exp_con = {'Ctrl','APV'};
+exp_con = {'Ctrl','TTX','TTX_GLYX'};
 
 %import cell_id_index table 
-cd('C:\Users\schum\Google_Drive\Lab\Data_analysis\culture_experiments\mini_data_by_groups')
+cd('/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/mini_data_by_groups')
 cell_id_index = readtable('cell_id_index.xlsx','Sheet',exp_name);
 
 %location of analyzed mini results
 fp_analyzed_mini = ...,
-    'C:\Users\schum\Google_Drive\Lab\Data_analysis\culture_experiments\analyzed_mini_results\';
+    '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/analyzed_mini_results/';
 
 %location of waveform average kinetics results
 fp_wavg_kinetics = ...,
-    'C:\Users\schum\Google_Drive\Lab\Data_analysis\culture_experiments\waveform_average_kinetics\';
+    '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/waveform_average_kinetics/';
 
 %% extract and group parameters from analyzed mini files
 data_struct_temp = cell(1,numel(exp_con));
 
 cd(strcat(fp_analyzed_mini,rise_cutoff))
+all_files_temp = dir;
+
+for fi = 1:size(all_files_temp,1)
+    if strcmp('.DS_Store',all_files_temp(fi).name)
+        delete '.DS_Store'
+        continue
+    end
+end
+
 all_files = dir;
 file_num = numel(all_files)-2;
 
@@ -129,6 +138,15 @@ clear all_files
 clear cell_id
 
 cd(strcat(fp_wavg_kinetics,rise_cutoff))
+all_files_temp = dir;
+
+for fi = 1:size(all_files_temp,1)
+    if strcmp('.DS_Store',all_files_temp(fi).name)
+        delete '.DS_Store'
+        continue
+    end
+end
+
 all_files = dir;
 file_num = numel(all_files)-2;
 
@@ -185,10 +203,11 @@ end
 
 %% CHANGE FOR EACH EXPERIMENT BEFORE SAVING
 Ctrl = data_struct_temp{1,1};
-APV = data_struct_temp{1,2};
+TTX = data_struct_temp{1,2};
+TTX_GLYX = data_struct_temp{1,3};
 
 if save_results == 1
     
     cd(fp_grouped_data)
-    save(saved_file_name, exp_con{1}, exp_con{2},'exp_con','cell_id_index')
+    save(saved_file_name,exp_con{1,:},'exp_con','cell_id_index')
 end

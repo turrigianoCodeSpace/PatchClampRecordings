@@ -4,14 +4,16 @@
 %% to be changed for each new run
 
 % specify experiment
-experiment = {'test'};
+experiment = {'230729'};
 
-% location to saved excised coordinates
-fp_excised_pts = 'C:\Users\schum\Google_Drive\Lab\Data\culture_experiments\excised_data';
+%subfolder
+sub = '';
 
 % location of mini data
-fp_data = 'C:\Users\schum\Google_Drive\Lab\Data\culture_experiments\mini\';
+fp_data = '/Users/wwneuro/My_Drive/Lab/Data/culture_experiments/mini/';
 
+% location to saved excised coordinates
+fp_excised_pts = '/Users/wwneuro/My_Drive/Lab/Data/culture_experiments/excised_data/';
 %% start excising raw data
 
 excised_points = cell(1,numel(experiment));
@@ -21,8 +23,8 @@ abp = 0;
 
 for jj = 1:numel(experiment)
     current_experiment = experiment{jj};
-    current_folder = strcat(fp_data,experiment{1});
-    excised_filename{1,jj} = strcat('excised_',experiment{1,jj},'.mat');
+    current_folder = strcat(fp_data,experiment{1},'/',sub);
+    excised_filename{1,jj} = strcat('excised_',experiment{1,jj},sub,'.mat');
     
     [~, data, cell_id, cell_num, filename] = h5_file_readout(current_folder);
     
@@ -129,8 +131,10 @@ end
 %% Reselect coordinates for specfic traces
 sp = input('Do you want to reselect coordinates for specifc traces?(1 = y, 2 = n):','s');
 
-if str2num(sp) == 1
+if str2double(sp) == 1
     
+    jj = 1;
+
     cci = input('cell number:','s');
     cci = str2double(cci);
 
