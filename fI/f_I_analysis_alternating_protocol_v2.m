@@ -17,24 +17,24 @@
 save_results = 1; 
 
 %filepath of fI data files
-fp_fI_data = '/Users/wwneuro/My_Drive/Lab/Data/culture_experiments/fI/';
+fp_fI_data = '/Users/wwneuro/My_Drive/Lab/Data/slice_NT/fI/';
 
 %filepath of rheobase data files
-fp_rheo_data = '/Users/wwneuro/My_Drive/Lab/Data/culture_experiments/rheobase/';
+fp_rheo_data = '/Users/wwneuro/My_Drive/Lab/Data/slice_NT/rheobase/';
 
 %filepath of Vm data files
-fp_vm_data = '/Users/wwneuro/My_Drive/Lab/Data/culture_experiments/resting_vm/';
+fp_vm_data = '/Users/wwneuro/My_Drive/Lab/Data/slice_NT/resting_vm/';
 
 %filepath of analyzed fI data
 fp_fI_analyzed_data = ...,
-    '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/analyzed_fI_results';
+    '/Users/wwneuro/My_Drive/Lab/Data_analysis/slice_NT/analyzed_fI_results';
 
 %filepath of analyzed seal test data (aka passive properties)
 fp_pp_analyzed_data = ...,
-    '/Users/wwneuro/My_Drive/Lab/Data_analysis/culture_experiments/analyzed_seal_test';
+    '/Users/wwneuro/My_Drive/Lab/Data_analysis/slice_NT/analyzed_seal_test';
 
 %experiment(s) (defined as the 6-digit format of the recording date)
-experiment = {'220719'};
+experiment = {'230831'};
 
 %subfolders under a certain experiment if any (e.g. before/after)
 sub = '';
@@ -62,13 +62,13 @@ figure_pp_on = 0;
 
 %%%% parameters for fI/rheobase pulses
 %latency of pulse onset (in s)
-step_start_fI = 1;
+step_start_fI = 0.5;
 
 %duration of the current injection pulse (in s)
-pulse_fI = 0.5;
+pulse_fI = 1;
 
 %current injection step amplitude (in pA)
-curr_inc = 25;
+curr_inc = 20;
 
 %current injection step amplitude for rheobase (in pA)
 curr_inc_rheo = 5;
@@ -80,7 +80,7 @@ curr_inc_rheo = 5;
 %cti_rheo = 5;
 
 %holding potential (in mV)
-v_hold = -60;
+v_hold = -70;
 
 %whether to show individual fI traces during analysis (1 = on, 0 = off)
 figure_fI_on = 0;
@@ -293,7 +293,7 @@ for jj = 1:1%numel(experiment)
     width_median = cell(1,max(cell_num)); %median of width for each current step
     
     %% loop through all cells
-    for ci = 1:max(cell_num)
+    for ci =1:max(cell_num)
         if isempty(cell_id{1,ci}) == 1
             continue
         else
@@ -434,7 +434,7 @@ for jj = 1:1%numel(experiment)
                     if sp_num_temp == 0
                        lat{1,ci}(ti,1) = NaN;
                     else
-                       lat{1,ci}(ti,1) = (V_th_temp(1,1)-10000)*0.1;
+                       lat{1,ci}(ti,1) = (V_th_temp(1,1)-step_start_fI*sample_rate)*0.1;
                     end
 
                     %spike adaptation index
@@ -702,7 +702,7 @@ for jj = 1:1%numel(experiment)
             Vm_stats(ci,1:4) = NaN;          
         else
             
-             if isempty(aDAT_vm{1,ci})
+             if ci > size(aDAT_vm,2) || isempty(aDAT_vm{1,ci})
                  Vm{1,ci} = NaN;
                  Vm_stats(ci,1:4) = NaN;  
              else

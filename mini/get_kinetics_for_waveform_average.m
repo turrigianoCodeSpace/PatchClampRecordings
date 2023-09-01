@@ -19,7 +19,7 @@ elseif expt_type == 2
 end
     
 %Name of experiment(s) to be run
-experiment = '230729';
+experiment = '230806';
 
 %location where kinetic results are saved
 fp_kinetics = ...,
@@ -29,7 +29,7 @@ fp_kinetics = ...,
 figure_on = 1;
 
 %%%%save results
-save_results = 1;
+save_results = 0;
 
 %calc_mode = 1: calculate the average waveform across all traces of the
 %same cell and then get kinetics of this wave. calc_mode = 2: calculate
@@ -86,6 +86,10 @@ for ei = 1:numel(wavgs_raw)
         wavg_all_per_cell = [];
         
         if isempty(WAVG{1,ei}{1,ci})
+            continue
+        end
+
+        if sum(sum(~isnan(WAVG{1,ei}{1,ci}))) == 0
             continue
         end
         
