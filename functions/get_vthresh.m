@@ -43,7 +43,7 @@ for di = pulse_start:(pulse_end+100)
                 pi = find(dV_sec(di:di+100)<=0,1,'first')+di+1;            
                 sp_peak(sp_num) = pi;
 
-                sp_index(sp_num,1) = find(dV_sec(10000:di) <= 5,1,'last')+10000;
+                sp_index(sp_num,1) = find(dV_sec(pulse_start:di) <= 5,1,'last')+pulse_start;
                 %sp_index(sp_num,2) = find(dV_sec(di+10:di+100)>=0.01*min(dV_sec(di+1:di+100)),1,'first')+di+1;
                 %if dV/dt doesn't decrease to 1% of downstroke within 10 ms,
                 %pick the maximum value within 5 ms after the peak.
@@ -75,7 +75,7 @@ end
 for si = 1:sp_num
      ap_dv = dV_sec(sp_index(si,1):sp_index(si,2));
      
-     th_ind = find(ap_dv>=0.05*nanmean(max_dv),1,'first');
+     th_ind = find(ap_dv>=0.05*mean(max_dv,'omitnan'),1,'first');
      V_th(si,1) = th_ind+sp_index(si,1)+1;
      V_th(si,2) = V(V_th(si,1));
      
@@ -100,6 +100,7 @@ if plot_on == 1
         plot(f_trough(vi,1),f_trough(vi,2),'o','markersize',8,'markerfacecolor','r');
         hold on
     end
-    set(gca,'xlim',[8000 5000+pulse_end]);
+    set(gca,'xlim',[pulse_start-2000 5000+pulse_end]);
+    set(gca,'FontSize', 14)
 end
 end
